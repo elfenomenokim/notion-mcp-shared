@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>__LABEL__</string>
+  <key>ProgramArguments</key>
+  <array><string>__HOME__/.local/bin/__NAME__</string></array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key><string>__HOME__</string>
+    <key>PATH</key><string>/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>NOTION_MCP_SHARED_NODE_BIN</key><string>__NODE__</string>
+    <key>NOTION_MCP_SHARED_PORT</key><string>__PORT__</string>
+    <key>NOTION_MCP_SHARED_RUNTIME</key><string>__RUNTIME__</string>
+    <key>NOTION_MCP_SHARED_SECRET</key><string>__SECRET__</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>30</integer>
+  <key>ProcessType</key><string>Background</string>
+  <key>Umask</key><integer>63</integer>
+  <key>StandardOutPath</key><string>__LOG_DIR__/notion-mcp-shared.log</string>
+  <key>StandardErrorPath</key><string>__LOG_DIR__/notion-mcp-shared.err.log</string>
+</dict>
+</plist>

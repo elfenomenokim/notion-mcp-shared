@@ -1,0 +1,4 @@
+flowchart LR
+  Client[AI client session] -->|HTTP MCP and service bearer| Shared[Loopback service 127.0.0.1:58983]
+  Shared -->|one process| Server[Notion MCP server]
+  Server -->|Notion-Token header| API[Notion API]
