@@ -5,9 +5,10 @@ After=network-online.target
 [Service]
 Type=simple
 Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
-Environment=NOTION_MCP_SHARED_PORT=__PORT__
-Environment=NOTION_MCP_SHARED_RUNTIME=__RUNTIME__
-Environment=NOTION_MCP_SHARED_SECRET=__SECRET__
+Environment="NOTION_MCP_SHARED_NODE_BIN=__NODE__"
+Environment="NOTION_MCP_SHARED_PORT=__PORT__"
+Environment="NOTION_MCP_SHARED_RUNTIME=__RUNTIME__"
+Environment="NOTION_MCP_SHARED_SECRET=__SECRET__"
 ExecStart=%h/.local/bin/__NAME__
 Restart=on-failure
 RestartSec=5

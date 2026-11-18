@@ -49,6 +49,8 @@ if [ "$ACTION" = secret ]; then
 fi
 [ -f "$SECRET" ] || { echo "Create the bearer file first: $0 --secret --secret-file '$SECRET'" >&2; exit 2; }
 [ -x "$(command -v node || true)" ] || { echo 'Node.js is required' >&2; exit 2; }
+NODE_BIN="$(python3 -c 'import os,shutil; print(os.path.realpath(shutil.which("node") or ""))')"
+[ -x "$NODE_BIN" ] || { echo 'Could not resolve Node.js executable' >&2; exit 2; }
 [ ! -e "$LAUNCHER" ] || { echo "Refusing to replace existing launcher: $LAUNCHER" >&2; exit 2; }
 [ ! -e "$UNIT" ] || { echo "Refusing to replace existing service: $UNIT" >&2; exit 2; }
 
@@ -60,8 +62,6 @@ install -m 700 "$ROOT/notion-mcp-shared-server.sh" "$LAUNCHER"
 
 case "$(uname -s)" in
   Darwin)
-    NODE_BIN="$(python3 -c 'import os,shutil; print(os.path.realpath(shutil.which("node") or ""))')"
-    [ -x "$NODE_BIN" ] || { echo 'Could not resolve Node.js executable' >&2; exit 2; }
     LABEL="com.notion.mcp-shared"
     [ "$NAME" = notion-mcp-shared ] || LABEL="com.notion.$NAME"
     PLIST_DIR="$HOME_DIR/Library/LaunchAgents"
@@ -85,7 +85,7 @@ values = {
     '__SECRET__': secret,
     '__LOG_DIR__': logs,
 }
-if any(text.count(k) != 1 for k in values):
+if any(text.count(k) < 1 for k in values):
     raise SystemExit('unexpected LaunchAgent template placeholders')
 for key, value in values.items():
     text = text.replace(key, escape(value))
@@ -96,15 +96,17 @@ PY
     ;;
   Linux)
     mkdir -p "$UNIT_DIR"
-    python3 - "$ROOT/notion-mcp-shared.service" "$UNIT" "$NAME" "$PORT" "$BUNDLE/bin/cli.mjs" "$SECRET" <<'PY'
+    python3 - "$ROOT/notion-mcp-shared.service" "$UNIT" "$NAME" "$PORT" "$BUNDLE/bin/cli.mjs" "$SECRET" "$NODE_BIN" <<'PY'
 import sys
 from pathlib import Path
-source, target, name, port, runtime, secret = sys.argv[1:]
+source, target, name, port, runtime, secret, node = sys.argv[1:]
 text = Path(source).read_text(encoding='utf-8')
-values = {'__NAME__': name, '__PORT__': port, '__RUNTIME__': runtime, '__SECRET__': secret}
+values = {'__NAME__': name, '__PORT__': port, '__RUNTIME__': runtime, '__SECRET__': secret, '__NODE__': node}
 if any(text.count(k) != 1 for k in values):
     raise SystemExit('unexpected systemd unit template placeholders')
 for key, value in values.items():
+    # systemd expands % specifiers and parses backslash escapes in quoted values.
+    value = value.replace('\\', '\\\\').replace('"', '\\"').replace('%', '%%')
     text = text.replace(key, value)
 Path(target).write_text(text, encoding='utf-8')
 PY
