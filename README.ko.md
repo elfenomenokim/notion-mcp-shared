@@ -1,7 +1,15 @@
+<img src="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/logo.svg" width="96" height="96" alt="하나의 서비스가 여러 클라이언트를 처리하는 모습을 나타낸 아이콘">
+
 # notion-mcp-shared
 [English](README.md)
 
 로컬 HTTP 서비스 하나가 여러 AI 클라이언트의 Notion MCP 요청을 처리합니다.
+
+Node.js · Python 3
+
+[![license](https://img.shields.io/github/license/elfenomenokim/notion-mcp-shared)](https://github.com/elfenomenokim/notion-mcp-shared/blob/main/LICENSE)
+
+stdio 클라이언트 5개가 452.17MiB를 쓰고, 같은 5개 세션이 공유 프로세스 하나에서 84.64MiB로 끝납니다. 저장된 Linux 측정에서 가져왔습니다.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/diagrams/notion-mcp-shared.ko.dark.svg">
@@ -75,6 +83,10 @@ NOTION_TOKEN=benchmark-no-api-call python3 docs/bench/measure.py \
 
 서비스는 loopback 주소에 바인딩되며 로컬 사용자 한 명을 위한 구성입니다. 번들은 upstream revision을 고정하고 문서에 적은 호환성 수정 두 개를 적용합니다. 데모 자료와 자격 증명은 모두 가짜입니다.
 
+## 기여
+
+이슈와 풀 리퀘스트를 환영합니다. 번들 빌드와 리뷰 방식은 [CONTRIBUTING.md](CONTRIBUTING.md)에 있습니다.
+
 ## 라이선스
 
-MIT. Notion과 제휴하지 않은 비공식 커뮤니티 도구입니다.
+MIT입니다. Notion과 제휴하지 않은 비공식 커뮤니티 도구입니다.

@@ -1,7 +1,15 @@
+<img src="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/logo.svg" width="96" height="96" alt="notion-mcp-shared: one service serving several clients">
+
 # notion-mcp-shared
 [한국어](README.ko.md)
 
 A local HTTP service lets multiple AI clients share one Notion MCP server process.
+
+Node.js · Python 3
+
+[![license](https://img.shields.io/github/license/elfenomenokim/notion-mcp-shared)](https://github.com/elfenomenokim/notion-mcp-shared/blob/main/LICENSE)
+
+Five stdio clients hold 452.17 MiB; one shared process holds 84.64 MiB with the same five sessions, from the saved Linux measurement.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/diagrams/notion-mcp-shared.dark.svg">
@@ -74,6 +82,10 @@ The benchmark sends a placeholder Notion token only to list tools; it makes no N
 ## Limits
 
 The service binds to loopback and is intended for one local user account. The bundle pins an upstream revision and applies the two documented compatibility fixes. Demo data and demo credentials are synthetic.
+
+## Contributing
+
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the bundle build and the review process.
 
 ## License
 
