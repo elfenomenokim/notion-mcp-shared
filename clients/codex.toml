@@ -1,0 +1,4 @@
+[mcp_servers.notion]
+url = "http://127.0.0.1:58983/mcp"
+bearer_token_env_var = "NOTION_MCP_AUTH_TOKEN"
+env_http_headers = { "Notion-Token" = "NOTION_TOKEN" }

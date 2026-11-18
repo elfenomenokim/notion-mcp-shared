@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "notion": {
+      "url": "http://127.0.0.1:58983/mcp",
+      "headers": {
+        "Authorization": "Bearer ${NOTION_MCP_AUTH_TOKEN}",
+        "Notion-Token": "${NOTION_TOKEN}"
+      },
+      "description": "Notion API through the shared local MCP service."
+    }
+  }
+}

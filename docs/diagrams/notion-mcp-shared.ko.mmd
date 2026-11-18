@@ -1,0 +1,4 @@
+flowchart LR
+  Client[AI 클라이언트 세션] -->|HTTP MCP와 서비스 bearer| Shared[로컬 서비스 127.0.0.1:58983]
+  Shared -->|프로세스 하나| Server[Notion MCP 서버]
+  Server -->|Notion-Token 헤더| API[Notion API]
