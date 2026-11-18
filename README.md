@@ -1,3 +1,5 @@
+<div align="center">
+
 <img src="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/logo.svg" width="96" height="96" alt="notion-mcp-shared: one service serving several clients">
 
 # notion-mcp-shared
@@ -10,6 +12,10 @@ Node.js · Python 3
 [![license](https://img.shields.io/github/license/elfenomenokim/notion-mcp-shared)](https://github.com/elfenomenokim/notion-mcp-shared/blob/main/LICENSE)
 
 Five stdio clients hold 452.17 MiB; one shared process holds 84.64 MiB with the same five sessions, from the saved Linux measurement.
+
+[Install](#install) · [Architecture](#architecture) · [Client configuration](#client-configuration)
+
+</div>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/diagrams/notion-mcp-shared.dark.svg">

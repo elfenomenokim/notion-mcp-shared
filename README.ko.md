@@ -1,3 +1,5 @@
+<div align="center">
+
 <img src="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/logo.svg" width="96" height="96" alt="하나의 서비스가 여러 클라이언트를 처리하는 모습을 나타낸 아이콘">
 
 # notion-mcp-shared
@@ -10,6 +12,10 @@ Node.js · Python 3
 [![license](https://img.shields.io/github/license/elfenomenokim/notion-mcp-shared)](https://github.com/elfenomenokim/notion-mcp-shared/blob/main/LICENSE)
 
 stdio 클라이언트 5개가 452.17MiB를 쓰고, 같은 5개 세션이 공유 프로세스 하나에서 84.64MiB로 끝납니다. 저장된 Linux 측정에서 가져왔습니다.
+
+[설치](#설치) · [구조](#구조) · [클라이언트 설정](#클라이언트-설정)
+
+</div>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/diagrams/notion-mcp-shared.ko.dark.svg">
