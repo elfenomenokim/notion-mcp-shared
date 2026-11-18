@@ -4,7 +4,6 @@
 import argparse
 import json
 import os
-import shlex
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -32,9 +31,11 @@ def main():
     if not notion_token:
         raise SystemExit("NOTION_TOKEN must be supplied in the environment")
     bearer = None
+    # The secret file stores the value literally, exactly as the launcher reads it.
     for raw in Path(args.server_secret).read_text().splitlines():
-        if raw.startswith("NOTION_MCP_AUTH_TOKEN="):
-            bearer = shlex.split(raw.split("=", 1)[1])[0]
+        line = raw.strip()
+        if line.startswith("NOTION_MCP_AUTH_TOKEN="):
+            bearer = line.split("=", 1)[1]
             break
     if not bearer:
         raise SystemExit("server bearer missing from private secret file")

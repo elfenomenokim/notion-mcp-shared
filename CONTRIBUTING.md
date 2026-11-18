@@ -31,12 +31,14 @@ service; the installer refuses to replace an existing launcher or unit.
 - Benchmarks and tests use a placeholder token and make no Notion API call.
 - The installer stays idempotent and refuses to overwrite; a half-finished install must not leave a
   launcher behind that the next run cannot replace.
+- The service bearer file holds one literal `NOTION_MCP_AUTH_TOKEN=` value. The launcher does not
+  unquote it, so no `%q`, `shlex` or other shell round-trip may be added on either side.
 
 ## What a good patch has
 
 - **The installer output and the service status** before and after, from a fresh machine or a fresh
   user account where you can make one.
-- **A line under Unreleased** in [CHANGELOG.md](CHANGELOG.md) when a user will notice.
+- **A dated entry** in [CHANGELOG.md](CHANGELOG.md) when a user will notice.
 - **The platforms you did not test** written in the pull request. The Linux unit has been
   exercised on Ubuntu; the macOS LaunchAgent has not been exercised from this installer.
 

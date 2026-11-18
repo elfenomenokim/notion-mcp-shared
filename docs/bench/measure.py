@@ -11,6 +11,11 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+# The measurement must never forward an account token. The value is fixed here and
+# the environment is ignored, so an exported real NOTION_TOKEN cannot reach the
+# stdio server.
+BENCHMARK_NOTION_TOKEN = "benchmark-no-api-call"
+
 
 def read_rss_kib(pid):
     try:
@@ -34,9 +39,9 @@ def read_json_line(process, wanted_id):
             return message.get("result", {})
 
 
-def start_stdio(node, runtime, client_token):
+def start_stdio(node, runtime):
     env = os.environ.copy()
-    env["NOTION_TOKEN"] = client_token
+    env["NOTION_TOKEN"] = BENCHMARK_NOTION_TOKEN
     process = subprocess.Popen(
         [node, runtime, "--transport", "stdio"],
         stdin=subprocess.PIPE,
@@ -69,16 +74,26 @@ def start_stdio(node, runtime, client_token):
         raise
 
 
-def run_stdio_group(node, runtime, n, client_token):
+def run_stdio_group(node, runtime, n):
     processes = []
     tool_names = []
     try:
         with concurrent.futures.ThreadPoolExecutor(max_workers=n) as executor:
-            futures = [executor.submit(start_stdio, node, runtime, client_token) for _ in range(n)]
+            futures = [executor.submit(start_stdio, node, runtime) for _ in range(n)]
+            failure = None
+            # Read every future, even after one fails: a started server is known to
+            # this function only when its result is collected here, and the finally
+            # block below can then stop it.
             for future in concurrent.futures.as_completed(futures):
-                process, count = future.result()
+                try:
+                    process, count = future.result()
+                except Exception as exc:
+                    failure = failure or exc
+                    continue
                 processes.append(process)
                 tool_names.append(count)
+        if failure is not None:
+            raise failure
         samples = []
         until = time.monotonic() + 1.0
         while time.monotonic() < until:
@@ -120,7 +135,7 @@ def post(url, payload, headers):
 def one_http_session(endpoint, bearer, index):
     headers = {
         "Authorization": f"Bearer {bearer}",
-        "Notion-Token": "ntn_benchmark-not-called",
+        "Notion-Token": BENCHMARK_NOTION_TOKEN,
         "Content-Type": "application/json",
         "Accept": "application/json, text/event-stream",
     }
@@ -197,14 +212,14 @@ def main():
     parser.add_argument("--output")
     args = parser.parse_args()
     bearer = None
+    # The secret file stores the value literally, exactly as the launcher reads it.
     for raw in Path(args.server_secret).read_text().splitlines():
-        if raw.startswith("NOTION_MCP_AUTH_TOKEN="):
-            import shlex
-            bearer = shlex.split(raw.split("=", 1)[1])[0]
+        line = raw.strip()
+        if line.startswith("NOTION_MCP_AUTH_TOKEN="):
+            bearer = line.split("=", 1)[1]
             break
     if not bearer:
         raise SystemExit("server bearer missing from private secret file")
-    client_token = os.environ.get("NOTION_TOKEN", "benchmark-no-api-call")
     measurements = {
         "platform": "Ubuntu Linux",
         "runtime": Path(args.runtime).name,
@@ -212,7 +227,7 @@ def main():
         "stdio": {},
     }
     for n in args.counts:
-        measurements["stdio"][str(n)] = run_stdio_group(args.node, args.runtime, n, client_token)
+        measurements["stdio"][str(n)] = run_stdio_group(args.node, args.runtime, n)
     measurements["shared_http"] = run_shared(args.endpoint, bearer, args.server_pid)
     measurements["shared_http"].pop("processes", None)
     encoded = json.dumps(measurements, indent=2) + "\n"

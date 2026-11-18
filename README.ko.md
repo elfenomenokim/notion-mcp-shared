@@ -34,7 +34,9 @@ Node.js, npm, Python 3, curl, tar와 Notion integration token이 필요합니다
 ./install.sh
 ```
 
-첫 명령은 서비스 bearer token을 권한 600인 로컬 파일에 저장합니다. 각 클라이언트 프로세스에 `NOTION_TOKEN`을 설정하세요. 서비스는 요청마다 그 값을 전달합니다. 기본 주소는 `http://127.0.0.1:58983/mcp`입니다.
+첫 명령은 서비스 bearer token을 권한 600인 로컬 파일에 저장합니다. 값은 그대로 저장하므로 token에 `#`이 있어도 잘리지 않습니다. 각 클라이언트 프로세스에 `NOTION_TOKEN`을 설정하세요. 서비스는 요청마다 그 값을 전달합니다. 기본 주소는 `http://127.0.0.1:58983/mcp`입니다.
+
+설치 스크립트는 기존 launcher나 service unit을 덮어쓰지 않습니다. 번들 빌드가 중간에 끊겼다면 `./install.sh`를 다시 실행하세요. 런타임 디렉터리를 다시 빌드하고, 빌드가 끝난 뒤에만 새 번들을 게시합니다.
 
 macOS에서는 LaunchAgent, Linux에서는 `systemd --user`로 실행합니다. Linux 설치는 Ubuntu에서 실행해 봤습니다. 기존 macOS LaunchAgent는 따로 유지되며 공개 설치 스크립트를 macOS에서 직접 실행하지는 않았습니다.
 
@@ -72,7 +74,7 @@ Ubuntu Linux에서 Node.js v22.23.5로 측정했습니다. 각 stdio 프로세�
 
 ```sh
 server_pid=$(systemctl --user show notion-mcp-shared.service -p MainPID --value)
-NOTION_TOKEN=benchmark-no-api-call python3 docs/bench/measure.py \
+python3 docs/bench/measure.py \
   --node "$(command -v node)" \
   --runtime "$HOME/.local/share/notion-mcp-shared/runtime/bin/cli.mjs" \
   --endpoint http://127.0.0.1:58983/mcp \
@@ -81,7 +83,7 @@ NOTION_TOKEN=benchmark-no-api-call python3 docs/bench/measure.py \
   --output docs/bench/linux-2026-11-17.json
 ```
 
-측정 명령은 가짜 Notion token을 사용하며 Notion API를 호출하지 않습니다. 별도로 테스트 서비스에서 읽기 전용 `API-post-search` 요청 한 건이 성공했습니다. 이후 테스트 서비스와 임시 파일을 모두 지웠습니다.
+측정 명령은 `benchmark-no-api-call` 가짜 token을 쓰고 환경의 `NOTION_TOKEN`은 무시합니다. 실제 계정 token이 서버로 가지 않습니다. 도구 목록만 받고 Notion API를 호출하지 않습니다. 별도로 테스트 서비스에서 읽기 전용 `API-post-search` 요청 한 건이 성공했습니다. 이후 테스트 서비스와 임시 파일을 모두 지웠습니다.
 
 ## Upstream 수정안
 

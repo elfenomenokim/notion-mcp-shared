@@ -34,7 +34,9 @@ Requirements: Node.js, npm, Python 3, curl, tar, and a Notion integration token.
 ./install.sh
 ```
 
-The first command stores a local service bearer in a mode-600 file. Configure each client with its own `NOTION_TOKEN`; the service passes that token per request. The service listens on `http://127.0.0.1:58983/mcp` by default.
+The first command stores a local service bearer in a mode-600 file. The value is stored literally, so a token may contain `#`. Configure each client with its own `NOTION_TOKEN`; the service passes that token per request. The service listens on `http://127.0.0.1:58983/mcp` by default.
+
+The installer refuses to replace an existing launcher or service unit. If a bundle build is interrupted, run `./install.sh` again: it rebuilds the runtime directory and publishes the new bundle only after a complete build.
 
 The installer supports macOS LaunchAgent and Linux `systemd --user` services. The Linux installer was exercised on an Ubuntu host. The existing macOS LaunchAgent remains on its prior installation; this public installer has not been exercised on macOS.
 
@@ -72,7 +74,7 @@ Reproduce the process and concurrency measurement after installation:
 
 ```sh
 server_pid=$(systemctl --user show notion-mcp-shared.service -p MainPID --value)
-NOTION_TOKEN=benchmark-no-api-call python3 docs/bench/measure.py \
+python3 docs/bench/measure.py \
   --node "$(command -v node)" \
   --runtime "$HOME/.local/share/notion-mcp-shared/runtime/bin/cli.mjs" \
   --endpoint http://127.0.0.1:58983/mcp \
@@ -81,7 +83,7 @@ NOTION_TOKEN=benchmark-no-api-call python3 docs/bench/measure.py \
   --output docs/bench/linux-2026-11-17.json
 ```
 
-The benchmark sends a placeholder Notion token only to list tools; it makes no Notion API calls. One separate read-only `API-post-search` call through the test service succeeded. The test service and its temporary files were then removed.
+The benchmark sends the fixed placeholder token `benchmark-no-api-call` and ignores `NOTION_TOKEN` in the environment, so a real account token cannot reach the server. It lists tools only and makes no Notion API calls. One separate read-only `API-post-search` call through the test service succeeded. The test service and its temporary files were then removed.
 
 ## Upstream fixes
 

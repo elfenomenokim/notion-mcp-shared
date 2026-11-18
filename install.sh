@@ -28,16 +28,30 @@ UNIT_DIR="$HOME_DIR/.config/systemd/user"
 UNIT="$UNIT_DIR/$NAME.service"
 
 write_secret() {
-  mkdir -p "$(dirname "$SECRET")"
-  chmod 700 "$(dirname "$SECRET")"
+  local secret_dir
+  secret_dir="$(dirname "$SECRET")"
+  umask 077
+  # Create and protect only a directory this script creates. An existing parent,
+  # such as $HOME or a shared directory, keeps the mode its owner chose.
+  if [ ! -d "$secret_dir" ]; then
+    mkdir -p "$secret_dir"
+    chmod 700 "$secret_dir"
+  fi
   if [ -e "$SECRET" ]; then
     echo "Refusing to replace existing secret file: $SECRET" >&2
     exit 2
   fi
-  umask 077
   read -r -s -p 'Service bearer token: ' bearer; printf '\n' >&2
   [ -n "$bearer" ] || { echo 'Bearer token is required' >&2; exit 2; }
-  printf 'NOTION_MCP_AUTH_TOKEN=%q\n' "$bearer" > "$SECRET"
+  case "$bearer" in
+    *[[:space:][:cntrl:]]*)
+      echo 'Bearer token must not contain whitespace or control characters' >&2
+      exit 2
+      ;;
+  esac
+  # The launcher reads the value literally, so it is stored without shell
+  # quoting and a '#' inside the token stays part of it.
+  printf 'NOTION_MCP_AUTH_TOKEN=%s\n' "$bearer" > "$SECRET"
   unset bearer
   chmod 600 "$SECRET"
   echo "Created private secret file: $SECRET"
@@ -55,9 +69,23 @@ NODE_BIN="$(python3 -c 'import os,shutil; print(os.path.realpath(shutil.which("n
 [ ! -e "$UNIT" ] || { echo "Refusing to replace existing service: $UNIT" >&2; exit 2; }
 
 mkdir -p "$DATA_DIR" "$(dirname "$LAUNCHER")"
-if [ ! -f "$BUNDLE/bin/cli.mjs" ]; then
+# A bundle is usable only when the build produced every file the service loads.
+bundle_complete() {
+  [ -s "$BUNDLE/bin/cli.mjs" ] && [ -s "$BUNDLE/scripts/notion-openapi.json" ]
+}
+if ! bundle_complete; then
+  if [ -L "$BUNDLE" ] || { [ -e "$BUNDLE" ] && [ ! -d "$BUNDLE" ]; }; then
+    echo "Refusing to replace unexpected runtime path: $BUNDLE" >&2
+    exit 2
+  fi
+  if [ -d "$BUNDLE" ]; then
+    # The builder accepts only a new path, and an interrupted build leaves this
+    # directory behind. It is derived data owned by the installer.
+    rm -rf -- "$BUNDLE"
+  fi
   bash "$ROOT/build-notion-bundle.sh" "$BUNDLE"
 fi
+bundle_complete || { echo "Runtime bundle is incomplete: $BUNDLE" >&2; exit 2; }
 install -m 700 "$ROOT/notion-mcp-shared-server.sh" "$LAUNCHER"
 
 case "$(uname -s)" in

@@ -14,8 +14,12 @@ This directory contains the public source package for a local shared Notion MCP 
 
 ## Build and install
 
-- Build a bundle into a new directory with `bash build-notion-bundle.sh NEW_DIRECTORY`.
-- Create the local service bearer with `./install.sh --secret`.
+- Build a bundle into a new directory with `bash build-notion-bundle.sh NEW_DIRECTORY`. The directory
+  appears only after a complete build; the installer reuses it only when it holds `bin/cli.mjs` and
+  `scripts/notion-openapi.json`.
+- Create the local service bearer with `./install.sh --secret`. The value is written and read
+  literally, without shell quoting or unescaping; the installer rejects whitespace and control
+  characters and protects only a directory it creates.
 - Install the user service with `./install.sh`.
 - The installer refuses to replace an existing launcher or service unit.
 - Default service URL: `http://127.0.0.1:58983/mcp`.
@@ -33,7 +37,8 @@ This directory contains the public source package for a local shared Notion MCP 
 ## Safety
 
 - Tests and benchmarks must not make Notion API calls unless a task explicitly requests one.
-- Use a fake `NOTION_TOKEN` for MCP initialize and tools/list measurements.
+- Use a fake `NOTION_TOKEN` for MCP initialize and tools/list measurements. `docs/bench/measure.py`
+  fixes that value and ignores the environment.
 - Never print, log, commit, or include service bearer and Notion account tokens in output.
 - Keep upstream patch drafts local; do not open PRs or publish packages without a separate owner request.
 - Keep the existing personal service labels out of public examples.

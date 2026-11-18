@@ -26,11 +26,12 @@ unset AUTH_TOKEN NOTION_MCP_AUTH_TOKEN NOTION_TOKEN OPENAPI_MCP_HEADERS NOTION_A
 [ -f "$RUNTIME" ] || { echo "FATAL: runtime missing: $RUNTIME" >&2; exit 78; }
 [ -f "$SECRET" ]  || { echo "FATAL: secret missing: $SECRET" >&2; exit 78; }
 
-# Read exactly one allowed assignment without sourcing shell code. The parser
-# also rejects symlinks, non-owner files, group/world access, and hard links.
+# Read exactly one allowed assignment without sourcing shell code. The value is
+# taken literally: it is not shell-unquoted, so a `#` inside the bearer stays
+# part of it. The parser also rejects symlinks, non-owner files, group/world
+# access, and hard links.
 NOTION_MCP_AUTH_TOKEN="$(python3 - "$SECRET" <<'PY'
 import os
-import shlex
 import stat
 import sys
 
@@ -71,20 +72,15 @@ except (OSError, UnicodeError) as exc:
 
 value = None
 for lineno, raw in enumerate(lines, 1):
-    stripped = raw.strip()
-    if not stripped or stripped.startswith("#"):
+    line = raw.strip()
+    if not line or line.startswith("#"):
         continue
-    try:
-        parts = shlex.split(stripped, comments=True, posix=True)
-    except ValueError:
-        print(f"FATAL: invalid secret syntax at line {lineno}", file=sys.stderr)
-        raise SystemExit(78)
-    if parts and parts[0] == "export":
-        parts = parts[1:]
-    if len(parts) != 1 or "=" not in parts[0]:
+    if line.startswith("export "):
+        line = line[len("export "):].lstrip()
+    key, sep, candidate = line.partition("=")
+    if not sep:
         print(f"FATAL: invalid secret assignment at line {lineno}", file=sys.stderr)
         raise SystemExit(78)
-    key, candidate = parts[0].split("=", 1)
     if key != "NOTION_MCP_AUTH_TOKEN":
         print(f"FATAL: disallowed secret key at line {lineno}", file=sys.stderr)
         raise SystemExit(78)
