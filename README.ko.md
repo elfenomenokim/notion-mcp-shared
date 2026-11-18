@@ -17,11 +17,13 @@ stdio 클라이언트 5개가 452.17MiB를 쓰고, 같은 5개 세션이 공유 
 
 </div>
 
+<p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/diagrams/notion-mcp-shared.ko.dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/diagrams/notion-mcp-shared.ko.svg">
   <img src="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/diagrams/notion-mcp-shared.ko.svg" alt="여러 클라이언트가 하나의 로컬 Notion MCP 서버로 요청을 보냅니다">
 </picture>
+</p>
 
 ## 설치
 

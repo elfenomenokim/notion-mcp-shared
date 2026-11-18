@@ -17,11 +17,13 @@ Five stdio clients hold 452.17 MiB; one shared process holds 84.64 MiB with the 
 
 </div>
 
+<p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/diagrams/notion-mcp-shared.dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/diagrams/notion-mcp-shared.svg">
   <img src="https://raw.githubusercontent.com/elfenomenokim/notion-mcp-shared/main/docs/diagrams/notion-mcp-shared.svg" alt="Several client sessions send requests through one local Notion MCP server">
 </picture>
+</p>
 
 ## Install
 
