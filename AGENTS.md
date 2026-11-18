@@ -37,3 +37,16 @@ This directory contains the public source package for a local shared Notion MCP 
 - Never print, log, commit, or include service bearer and Notion account tokens in output.
 - Keep upstream patch drafts local; do not open PRs or publish packages without a separate owner request.
 - Keep the existing personal service labels out of public examples.
+
+## Code Review Rules
+
+A change is a real defect when it:
+
+- prints, logs, commits or writes a Notion token, service bearer or account value into a service file or an argument.
+- makes the installer overwrite an existing launcher or service unit instead of refusing.
+- changes the default service URL or port without updating the README and the client examples.
+- breaks `bash -n install.sh notion-mcp-shared-server.sh`.
+- makes a check or benchmark call the real Notion API, or run with a real token instead of a fake one.
+- stops pinning the upstream Notion MCP version in the bundle build, or builds into an existing directory.
+
+Not defects: wording, formatting, comment style, requested extra tests, or a renamed helper.
