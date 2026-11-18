@@ -1,0 +1,25 @@
+{
+  "name": "notion-mcp-shared",
+  "sentence": "A local HTTP service lets multiple AI clients share one Notion MCP server process.",
+  "tag": "NODE.JS · MCP",
+  "terminal": [
+    "5 concurrent HTTP sessions",
+    "24 tools listed per session",
+    "one shared Node.js process",
+    "84.64 MiB peak RSS"
+  ],
+  "metric": {
+    "kind": "markdown_table",
+    "source": "README.md",
+    "title": "Peak process RSS",
+    "basis": "Linux · 24 tools · 5 HTTP sessions",
+    "unit": "MiB",
+    "precision": 2,
+    "items": [
+      {"label": "1 stdio process", "match": "1", "column": 1},
+      {"label": "3 stdio processes", "match": "3", "column": 1},
+      {"label": "5 stdio processes", "match": "5", "column": 1},
+      {"label": "one shared server", "match": "5", "column": 2}
+    ]
+  }
+}
