@@ -51,7 +51,7 @@ macOS에서는 LaunchAgent, Linux에서는 `systemd --user`로 실행합니다. 
 
 ## 공식 서버와의 차이
 
-Notion 도구는 [`makenotion/notion-mcp-server`](https://github.com/makenotion/notion-mcp-server)에서 옵니다. OpenAPI 스펙을 고치지 않으므로 도구 24개가 upstream 2.5.2와 2026-11-19의 `main`에서 모두 같습니다. 이 프로젝트는 그 서버를 감싸는 프로세스, 서비스, 비밀값 처리를 더합니다. 두 번째 Notion 클라이언트가 아니라 공식 서버 위의 얇은 계층입니다.
+Notion 도구는 [`makenotion/notion-mcp-server`](https://github.com/makenotion/notion-mcp-server)에서 옵니다. OpenAPI 스펙을 고치지 않으므로 도구 24개가 upstream 2.5.2, 2.6.1과 2026-11-19의 `main`에서 모두 같습니다. 이 프로젝트는 그 서버를 감싸는 프로세스, 서비스, 비밀값 처리를 더합니다. 두 번째 Notion 클라이언트가 아니라 공식 서버 위의 얇은 계층입니다.
 
 | | 공식 서버 | 이 프로젝트 |
 |---|---|---|
@@ -60,14 +60,14 @@ Notion 도구는 [`makenotion/notion-mcp-server`](https://github.com/makenotion/
 | 접속 인증 | `--auth-token` 또는 `AUTH_TOKEN` | `0600` 파일에서 읽은 bearer를 환경으로 전달 |
 | 요청별 계정 | `--enable-token-passthrough`, `Notion-Token` 헤더 | 같음 |
 | 프로세스 수명 | 사용자가 직접 실행 | launchd 또는 systemd 사용자 서비스 |
-| upstream 수정 | 없음 | 고정한 번들에 패치 2개 |
+| upstream 수정 | 없음 | 고정한 번들에 패치 1개 |
 
 이 프로젝트가 더하는 것:
 
 - 세션마다 프로세스를 띄우는 대신 Node 절대 경로를 쓰는 사용자 서비스 하나.
 - bearer를 파일에서 그대로 읽고 심볼릭 링크, 소유자, `0600` 권한, 하드 링크 개수를 확인한 뒤 환경으로 넘깁니다. 값은 `ps`에도 `--auth-token` 인자에도 남지 않습니다. 시작 전에 상속된 `NOTION_TOKEN`과 `AUTH_TOKEN`을 지우므로 의도하지 않은 계정으로 응답하지 않습니다.
 - 런타임, 비밀값, Node 가운데 하나라도 없으면 exit 78로 시작을 거절합니다.
-- upstream `main`에 아직 없는 수정 두 개. 없어진 세션 ID에는 HTTP 404를 돌려주므로 Streamable HTTP 클라이언트가 세션을 새로 만듭니다. upstream은 400을 주고 클라이언트는 같은 요청을 다시 시도합니다. 고정한 `dereference-json-schema`는 `0.2.1`에서 `0.2.3`으로 올립니다.
+- upstream `main`에 아직 없는 수정 하나. 없어진 세션 ID에는 HTTP 404를 돌려주므로 Streamable HTTP 클라이언트가 세션을 새로 만듭니다. upstream은 400을 주고 클라이언트는 같은 요청을 다시 시도합니다. 이 프로젝트가 lockfile에서 고치던 스키마 보존은 2.6.0부터 upstream 자체 수정(#335)이라, 2.6.1 번들은 의존성 패치를 넣지 않습니다.
 - 클라이언트 예제와 아래 측정값.
 
 더하지 않는 것: OAuth, 의미 검색, 연결 앱 검색, Markdown 기반 페이지 편집, 호스팅 운영. Notion이 지원하는 경로는 [Remote Notion MCP](https://developers.notion.com/docs/mcp)이며, 이 프로젝트는 그 서비스를 대신하거나 직접 운영할 수 없습니다.
@@ -82,7 +82,7 @@ npx @notionhq/notion-mcp-server --transport http --auth-token "$(cat ~/.secrets/
 
 세션 여러 개가 계정 묶음 하나를 함께 쓰고 클라이언트마다 자기 Notion token을 보내야 할 때 이 프로젝트를 씁니다.
 
-upstream이 없어진 세션에 404를 주고, 스키마 보존을 고치고, 같은 비밀값 처리를 하는 사용자 서비스를 함께 배포하면 이 프로젝트는 필요 없어집니다. 스키마 누수는 2.6.0이 스펙 객체 identity 캐시에서 먼저 고쳤으므로(upstream #335) 그 이동에서는 lockfile 패치가 빠집니다. 새 revision은 `scripts/start-server.ts`의 세션 응답 두 줄과 `package-lock.json`의 `dereference-json-schema` 항목에서 확인하세요.
+upstream이 없어진 세션에 404를 주고 같은 비밀값 처리를 하는 사용자 서비스를 함께 배포하면 이 프로젝트는 필요 없어집니다. 스키마 보존은 2.6.0이 스펙 객체 identity 캐시에서 이미 고쳤습니다(upstream #335). 새 revision은 `scripts/start-server.ts`의 세션 응답 두 줄에서 확인하세요.
 
 ## 클라이언트 설정
 
@@ -122,11 +122,11 @@ python3 docs/bench/measure.py \
 
 ## Upstream 수정안
 
-`upstream-prs/`에는 `makenotion/notion-mcp-server`에 보낼 패치, 재현 방법, 제안 브랜치 이름과 PR 본문을 보관합니다. 아직 PR을 열지 않았습니다.
+`upstream-prs/`에는 `makenotion/notion-mcp-server`에 보낼 패치, 재현 방법, 제안 브랜치 이름과 PR 본문을 보관합니다. 스키마 dereferencer 패치는 2.6.0부터 upstream에서 고쳐졌으므로(#335) 기록으로만 남기고 적용하지 않습니다. 없어진 세션 패치만 적용합니다. 아직 PR을 열지 않았습니다.
 
 ## 범위
 
-서비스는 loopback 주소에 바인딩되며 로컬 사용자 한 명을 위한 구성입니다. 번들은 upstream 2.5.2(commit `730ae781`)를 고정하고 문서에 적은 호환성 수정 두 개를 적용합니다. 고정을 옮기려면 두 패치를 그 revision에 맞춰 다시 만들어야 합니다. 데모 자료와 자격 증명은 모두 가짜입니다.
+서비스는 loopback 주소에 바인딩되며 로컬 사용자 한 명을 위한 구성입니다. 번들은 upstream 2.6.1(commit `cf16e5c2`)을 고정하고 문서에 적은 호환성 수정 하나를 적용합니다. 고정을 옮기려면 그 패치를 그 revision에 맞춰 다시 만들어야 합니다. 데모 자료와 자격 증명은 모두 가짜입니다.
 
 ## 기여
 

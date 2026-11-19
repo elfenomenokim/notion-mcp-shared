@@ -20,6 +20,16 @@ entries are dated and no version number is attached.
   session ID still answers HTTP 400, and the lockfile still resolves `dereference-json-schema`
   `0.2.1`. Upstream 2.6.0 fixed the schema leak at the spec identity cache instead (#335). No code
   change.
+- The bundle pin moves to upstream 2.6.1 (commit `cf16e5c2`, npm 2026-10-29). The launcher needs no
+  change: 2.6.1 keeps `--transport http`, `--host`, `--port`, `ENABLE_TOKEN_PASSTHROUGH` and the
+  `Notion-Token` header. Its OpenAPI spec is byte-identical to 2.5.2, so the tool surface stays at
+  24 tools. 2.6.1 rejects file-upload operations and drops the client's local file reads; the pinned
+  spec defines no multipart operation, so no tool changes behavior.
+- `build-notion-bundle.sh` no longer patches `package-lock.json`. Upstream 2.6.0 fixed the schema
+  retention at the spec identity cache (#335), so the `dereference-json-schema` 0.2.3 move is no
+  longer needed. The stale-session patch is unchanged and still applies.
+- The macOS service and its launcher chain select the 2.6.1 bundle; the 2.5.2 bundle stays as the
+  fallback.
 
 ## 2026-11-18
 

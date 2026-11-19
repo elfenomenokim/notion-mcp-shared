@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Build the upstream 2.5.2 bundle with the cache-retention fix. Output is
+# Build the upstream 2.6.1 bundle with the stale-session fix. Output is
 # isolated; choosing and installing a runtime remains a separate operation.
 # From the project root, prepare the versioned default without replacing the npm bundle:
-# bash docs/products/dotfiles/mcp/build-notion-bundle.sh "$HOME/.local/share/feno-mcp/notion-2.5.2-deref-0.2.3-session-404"
+# bash docs/products/dotfiles/mcp/build-notion-bundle.sh "$HOME/.local/share/feno-mcp/notion-2.6.1-session-404"
+# Upstream 2.6.0 fixed the schema retention at the spec identity cache (#335), so this
+# build no longer patches the lockfile's dereference-json-schema release.
 # macOS: bash docs/products/dotfiles/bootstrap/notion-http-setup.sh renders and
 # may restart the service. Linux: deploy the launcher and restart separately.
 # Both retain the npm fallback; FENO_NOTION_MCP_RUNTIME overrides either choice.
@@ -22,31 +24,18 @@ partial="$target.partial.$$"
 trap 'rm -rf -- "$partial"' EXIT HUP INT TERM
 mkdir "$partial"
 output="$(cd "$partial" && pwd -P)"
-revision=730ae781ba28beeaf0865025a3f2ed4c25ea2387
+revision=cf16e5c20bfbfb98ecec1227f210ef0ae3abebe5
 archive="$output/source.tgz"
 curl -fsSL "https://codeload.github.com/makenotion/notion-mcp-server/tar.gz/$revision" -o "$archive"
 python3 - "$archive" <<'PY'
 import hashlib, sys
 from pathlib import Path
-expected = '98894eb293e819c73592ca3bb3b6709e18d22a2e147f7ebbb32d1665522c2e28'
+expected = 'bfc4ec6a56634e18a77cfe76c3db9dccb88560930b1964de0dab834718fdc424'
 if hashlib.sha256(Path(sys.argv[1]).read_bytes()).hexdigest() != expected:
     raise SystemExit('Notion source archive checksum mismatch')
 PY
 tar -xzf "$archive" -C "$output"
 source_dir="$output/notion-mcp-server-$revision"
-python3 - "$source_dir/package-lock.json" <<'PY'
-import json, sys
-from pathlib import Path
-path = Path(sys.argv[1])
-lock = json.loads(path.read_text())
-entry = lock['packages']['node_modules/dereference-json-schema']
-if entry['version'] != '0.2.1':
-    raise SystemExit('Unexpected upstream dereference-json-schema version')
-entry.update(version='0.2.3',
-    resolved='https://registry.npmjs.org/dereference-json-schema/-/dereference-json-schema-0.2.3.tgz',
-    integrity='sha512-CBVoEuf2tKhqnUhoKjvX4wo5NVxDSHxInqwExQfUNEK67aX+LPC27Vg+6CApi+KRebABJZAWhHBVoNpKfhMssg==')
-path.write_text(json.dumps(lock, indent=2) + '\n')
-PY
 python3 - "$source_dir/scripts/start-server.ts" <<'PY'
 import sys
 from pathlib import Path

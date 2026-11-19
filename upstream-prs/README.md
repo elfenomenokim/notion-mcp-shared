@@ -1,8 +1,13 @@
 # Upstream PR drafts
 
-These are local patch and description drafts against `makenotion/notion-mcp-server` commit `730ae781ba28beeaf0865025a3f2ed4c25ea2387`. They are not branches pushed to GitHub and no PR was opened.
+These are local patch and description drafts against `makenotion/notion-mcp-server`. They are not branches pushed to GitHub and no PR was opened.
 
-## 1. Refresh the vulnerable schema dereferencer
+Patch 1 is resolved upstream: 2.6.0 fixed the schema retention at the spec identity cache
+(#335, commit `92a696751684`). The 2.6.1 bundle does not apply it and the file stays for the
+record. Patch 2 still applies to 2.6.1 (commit `cf16e5c20bfbfb98ecec1227f210ef0ae3abebe5`), where
+`scripts/start-server.ts` is unchanged from 2.5.2.
+
+## 1. Refresh the vulnerable schema dereferencer (resolved upstream in 2.6.0)
 
 - Proposed branch: `fix/dereference-json-schema-cache-retention`
 - Patch: `dereference-json-schema.patch`

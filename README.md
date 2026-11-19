@@ -51,7 +51,7 @@ The `Authorization: Bearer` value authenticates clients to the local service. Th
 
 ## Official server vs this
 
-The Notion tools come from [`makenotion/notion-mcp-server`](https://github.com/makenotion/notion-mcp-server), with its OpenAPI spec unchanged: 24 tools, the same set as upstream 2.5.2 and as `main` on 2026-11-19. This project adds the process, service and secret handling around that server. It is a thin layer on the official server, not a second Notion client.
+The Notion tools come from [`makenotion/notion-mcp-server`](https://github.com/makenotion/notion-mcp-server), with its OpenAPI spec unchanged: 24 tools, the same set as upstream 2.5.2, 2.6.1 and as `main` on 2026-11-19. This project adds the process, service and secret handling around that server. It is a thin layer on the official server, not a second Notion client.
 
 | | Official server | This project |
 |---|---|---|
@@ -60,14 +60,14 @@ The Notion tools come from [`makenotion/notion-mcp-server`](https://github.com/m
 | Client auth | `--auth-token` or `AUTH_TOKEN` | bearer from a `0600` file, passed in the environment |
 | Account per request | `--enable-token-passthrough`, `Notion-Token` header | the same |
 | Process lifetime | you start and stop it | launchd or systemd user service |
-| Upstream fixes | — | two patches in the pinned bundle |
+| Upstream fixes | — | one patch in the pinned bundle |
 
 This project adds:
 
 - One user service unit with an absolute Node path, instead of a process that each session starts.
 - A bearer read literally from a file after a no-follow, owner, `0600` and single-hard-link check, then passed in the environment. The value never appears in `ps` or in an `--auth-token` argument. Inherited `NOTION_TOKEN` and `AUTH_TOKEN` are unset before start, so the service cannot answer for an unintended account.
 - A fail-closed start: exit 78 when the runtime, the secret or Node is missing.
-- Two fixes that upstream `main` still does not carry. A supplied session ID that no longer exists returns HTTP 404, which tells a Streamable HTTP client to initialize again; upstream answers 400 and the client retries the same request. The pinned `dereference-json-schema` release moves from `0.2.1` to `0.2.3`.
+- One fix that upstream `main` still does not carry: a supplied session ID that no longer exists returns HTTP 404, which tells a Streamable HTTP client to initialize again; upstream answers 400 and the client retries the same request. The schema retention that this project used to patch in the lockfile is upstream's own fix since 2.6.0 (#335), so the 2.6.1 bundle carries no dependency patch.
 - Client examples and the measurement below.
 
 It does not add OAuth, semantic search, connected-app search, Markdown-native page editing or hosted operation. Notion's supported path for those is [Remote Notion MCP](https://developers.notion.com/docs/mcp), which this project cannot replace or self-host.
@@ -82,7 +82,7 @@ npx @notionhq/notion-mcp-server --transport http --auth-token "$(cat ~/.secrets/
 
 Use this project when several sessions share one account set and each client sends its own Notion token.
 
-This project is superseded when upstream returns 404 for a stale supplied session, fixes the schema retention and ships a user service unit with the same secret handling. 2.6.0 already fixed the schema leak at the spec identity cache (upstream #335), so the lockfile patch drops out of that move. Check a newer revision in the two session status lines of `scripts/start-server.ts` and in the `dereference-json-schema` entry of `package-lock.json`.
+This project is superseded when upstream returns 404 for a stale supplied session and ships a user service unit with the same secret handling. The schema retention is already fixed upstream since 2.6.0, at the spec identity cache (#335). Check a newer revision in the two session status lines of `scripts/start-server.ts`.
 
 ## Client configuration
 
@@ -122,11 +122,11 @@ The benchmark sends the fixed placeholder token `benchmark-no-api-call` and igno
 
 ## Upstream fixes
 
-`upstream-prs/` contains two local patch files, reproduction steps, proposed branch names, and PR text for `makenotion/notion-mcp-server`. No PR is open.
+`upstream-prs/` contains the local patch file, reproduction steps, proposed branch name, and PR text for `makenotion/notion-mcp-server`. The dereferencer patch is resolved upstream since 2.6.0 (#335) and stays for the record; only the stale-session patch is applied. No PR is open.
 
 ## Limits
 
-The service binds to loopback and is intended for one local user account. The bundle pins upstream 2.5.2 (commit `730ae781`) and applies the two documented compatibility fixes; moving the pin means re-deriving both patches against that revision. Demo data and demo credentials are synthetic.
+The service binds to loopback and is intended for one local user account. The bundle pins upstream 2.6.1 (commit `cf16e5c2`) and applies the one documented compatibility fix; moving the pin means re-deriving that patch against that revision. Demo data and demo credentials are synthetic.
 
 ## Contributing
 
