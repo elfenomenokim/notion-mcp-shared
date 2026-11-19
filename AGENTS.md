@@ -11,6 +11,7 @@ This directory contains the public source package for a local shared Notion MCP 
 - `docs/bench/` contains measurement and read-only search tools.
 - `docs/diagrams/` contains Mermaid sources and rendered SVGs.
 - `upstream-prs/` contains local patch and PR-text drafts.
+- `README.md` section "Official server vs this" records the comparison with `makenotion/notion-mcp-server`. Re-check it, and the upstream status sentence, when the pinned revision changes.
 
 ## Build and install
 
@@ -41,6 +42,8 @@ This directory contains the public source package for a local shared Notion MCP 
   fixes that value and ignores the environment.
 - Never print, log, commit, or include service bearer and Notion account tokens in output.
 - Keep upstream patch drafts local; do not open PRs or publish packages without a separate owner request.
+- The Notion tool surface belongs to upstream. Do not add a Notion API call, tool or spec copy here; this
+  project only wraps the upstream server.
 - Keep the existing personal service labels out of public examples.
 
 ## Code Review Rules

@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The package is installed from git, so
 entries are dated and no version number is attached.
 
+## 2026-11-19
+
+### Added
+
+- README section "Official server vs this": the Notion tools are upstream's unmodified 24-tool
+  surface, so this project is a thin layer. The section lists what it adds (user service unit,
+  secret-file handling, fail-closed start, two upstream patches), what it does not add (OAuth,
+  semantic search, connected-app search, hosted operation), upstream's maintenance status, and the
+  condition that makes this project redundant.
+
+### Changed
+
+- Verified against upstream `main` on 2026-11-19: both patched defects remain. A supplied stale
+  session ID still answers HTTP 400, and the lockfile still resolves `dereference-json-schema`
+  `0.2.1`. Upstream 2.6.0 fixed the schema leak at the spec identity cache instead (#335). No code
+  change.
+
 ## 2026-11-18
 
 ### Fixed
